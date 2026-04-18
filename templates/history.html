@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+{% block title %}CiberEscudo — Historial{% endblock %}
+
+{% block body %}
+
+<!-- Navbar -->
+<nav class="navbar navbar-ce px-4 d-flex align-items-center justify-content-between">
+  <a class="navbar-brand d-flex align-items-center gap-2 mb-0" href="/">
+    <i class="bi bi-shield-check text-accent"></i>CiberEscudo
+  </a>
+  <div class="d-flex align-items-center gap-3">
+    <a href="/history/" class="nav-link"><i class="bi bi-clock-history me-1"></i>Historial</a>
+    <a href="/passwords/check" class="nav-link"><i class="bi bi-key me-1"></i>Contraseñas</a>
+    <a href="/auth/logout" class="nav-link text-muted-ce">
+      <i class="bi bi-box-arrow-right"></i>
+    </a>
+  </div>
+</nav>
+
+<div class="container-fluid px-4 py-5" style="max-width:960px; margin:0 auto;">
+
+  <!-- Header -->
+  <div class="d-flex align-items-center justify-content-between mb-4">
+    <div>
+      <h2 class="fw-bold text-primary-ce mb-1"><i class="bi bi-clock-history me-2 text-accent"></i>Historial de Alertas</h2>
+      <p class="text-muted-ce mb-0" style="font-size:.85rem;">Total: {{ total }} alerta{% if total != 1 %}s{% endif %}</p>
+    </div>
+  </div>
+
+  <!-- Empty state -->
+  {% if not alerts %}
+  <div class="card-ce p-5 text-center">
+    <i class="bi bi-inbox display-4 text-muted-ce d-block mb-3"></i>
+    <p class="text-muted-ce mb-0">No hay alertas registradas aún.</p>
+    <a href="/" class="btn btn-ce-primary mt-3"><i class="bi bi-search me-1"></i>Verificar correo</a>
+  </div>
+  {% else %}
+
+  <!-- Table -->
+  <div class="card-ce overflow-hidden mb-4">
+    <table class="table-ce w-100">
+      <thead>
+        <tr>
+          <th class="px-4 py-3">Correo</th>
+          <th class="px-4 py-3">Brecha</th>
+          <th class="px-4 py-3">Datos expuestos</th>
+          <th class="px-4 py-3">Fecha detección</th>
+          <th class="px-4 py-3">Estado</th>
+          <th class="px-4 py-3"></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for a in alerts %}
+        <tr>
+          <td class="px-4 py-3 text-primary-ce" style="font-size:.85rem;">{{ a.email }}</td>
+          <td class="px-4 py-3 fw-semibold" style="font-size:.85rem;">{{ a.breach }}</td>
+          <td class="px-4 py-3" style="font-size:.75rem; max-width:220px;">
+            {% for cls in a.data_cls.split(', ') %}
+            <span class="badge me-1 mb-1"
+                  style="background:rgba(0,212,255,.1); color:var(--accent); border:1px solid var(--accent);">
+              {{ cls }}
+            </span>
+            {% endfor %}
+          </td>
+          <td class="px-4 py-3 text-muted-ce" style="font-size:.8rem;">{{ a.date_det }}</td>
+          <td class="px-4 py-3">
+            {% if a.status == 'ATENDIDA' %}
+              <span class="badge-safe">Atendida</span>
+            {% else %}
+              <span class="badge-danger">Pendiente</span>
+            {% endif %}
+          </td>
+          <td class="px-4 py-3">
+            {% if a.status != 'attended' %}
+            <form method="POST" action="/history/attend/{{ a.id }}" class="d-inline">
+              <button type="submit" class="btn btn-ce-primary btn-sm">
+                <i class="bi bi-check2 me-1"></i>Atender
+              </button>
+            </form>
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Pagination -->
+  {% if pages > 1 %}
+  <nav class="d-flex justify-content-center gap-2">
+    {% for p in range(1, pages + 1) %}
+    <a href="/history/?page={{ p }}"
+       class="btn btn-sm {% if p == page %}btn-ce-analyze{% else %}btn-ce-primary{% endif %}">
+      {{ p }}
+    </a>
+    {% endfor %}
+  </nav>
+  {% endif %}
+
+  {% endif %}
+</div>
+
+{% endblock %}

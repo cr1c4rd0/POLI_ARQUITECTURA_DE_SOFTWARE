@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+{% block title %}CiberEscudo — Guía de Acción{% endblock %}
+
+{% block body %}
+
+<!-- Navbar -->
+<nav class="navbar navbar-ce px-4 d-flex align-items-center justify-content-between">
+  <a class="navbar-brand d-flex align-items-center gap-2 mb-0" href="/">
+    <i class="bi bi-shield-check text-accent"></i>CiberEscudo
+  </a>
+  <div class="d-flex align-items-center gap-3">
+    <a href="/history/" class="nav-link"><i class="bi bi-clock-history me-1"></i>Historial</a>
+    <a href="/passwords/check" class="nav-link"><i class="bi bi-key me-1"></i>Contraseñas</a>
+    <a href="/auth/logout" class="nav-link text-muted-ce">
+      <i class="bi bi-box-arrow-right"></i>
+    </a>
+  </div>
+</nav>
+
+<div class="container-fluid px-4 py-5" style="max-width:720px; margin:0 auto;">
+
+  <!-- Header -->
+  <div class="text-center mb-5">
+    <i class="bi bi-journal-check display-4 text-accent d-block mb-3"></i>
+    <h1 class="fw-bold mb-2" style="font-size:1.8rem;">{{ guide.title }}</h1>
+    <p class="text-muted-ce" style="max-width:560px; margin:0 auto; font-size:.9rem;">
+      {{ guide.description }}
+    </p>
+  </div>
+
+  <!-- Steps -->
+  {% if guide.steps %}
+  <h5 class="fw-bold text-primary-ce mb-3">
+    <i class="bi bi-list-check me-2 text-accent"></i>Pasos recomendados
+  </h5>
+  <div class="mb-4">
+    {% for step in guide.steps %}
+    <div class="card-ce p-3 mb-2 d-flex align-items-start gap-3">
+      <div class="d-flex align-items-center justify-content-center flex-shrink-0"
+           style="width:32px; height:32px; border-radius:50%; background:rgba(0,212,255,.15); color:var(--accent); font-weight:700; font-size:.875rem;">
+        {{ loop.index }}
+      </div>
+      <p class="mb-0 text-primary-ce" style="font-size:.9rem;">{{ step }}</p>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  <!-- Resources -->
+  {% if guide.resources %}
+  <h5 class="fw-bold text-primary-ce mb-3">
+    <i class="bi bi-link-45deg me-2 text-accent"></i>Recursos de apoyo
+  </h5>
+  <div class="card-ce p-4 mb-4">
+    <ul class="list-unstyled mb-0">
+      {% for res in guide.resources %}
+      <li class="d-flex align-items-center gap-2 mb-2" style="font-size:.875rem;">
+        <i class="bi bi-arrow-right-circle text-accent"></i>
+        <span class="text-muted-ce">{{ res }}</span>
+      </li>
+      {% endfor %}
+    </ul>
+  </div>
+  {% endif %}
+
+  <!-- Priority badge -->
+  {% if guide.priority %}
+  <div class="text-center mb-4">
+    <span class="px-3 py-1"
+          style="border-radius:6px; font-size:.8rem; font-weight:600;
+                 {% if guide.priority == 'alta' %}background:rgba(248,81,73,.15); color:var(--danger); border:1px solid var(--danger);
+                 {% elif guide.priority == 'media' %}background:rgba(210,153,34,.15); color:var(--warn); border:1px solid var(--warn);
+                 {% else %}background:rgba(63,185,80,.15); color:var(--safe); border:1px solid var(--safe);{% endif %}">
+      Prioridad {{ guide.priority | capitalize }}
+    </span>
+  </div>
+  {% endif %}
+
+  <div class="text-center mt-4">
+    <a href="/" class="btn btn-ce-primary">
+      <i class="bi bi-arrow-left me-2"></i>Volver al inicio
+    </a>
+  </div>
+</div>
+
+{% endblock %}

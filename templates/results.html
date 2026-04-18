@@ -8,144 +8,122 @@
   <a class="navbar-brand d-flex align-items-center gap-2 mb-0" href="/">
     <i class="bi bi-shield-check text-accent"></i>CiberEscudo
   </a>
-  <a href="/" class="d-flex align-items-center gap-2 text-decoration-none"
-     style="background:var(--bg-tertiary); color:var(--text-muted); border-radius:6px; padding:5px 12px; font-size:.8rem;">
-    <i class="bi bi-arrow-left"></i> Nuevo análisis
-  </a>
+  <div class="d-flex align-items-center gap-3">
+    <a href="/history/" class="nav-link"><i class="bi bi-clock-history me-1"></i>Historial</a>
+    <a href="/passwords/check" class="nav-link"><i class="bi bi-key me-1"></i>Contraseñas</a>
+    <a href="/auth/logout" class="nav-link text-muted-ce">
+      <i class="bi bi-box-arrow-right"></i>
+    </a>
+  </div>
 </nav>
 
-<!-- Content -->
-<div class="container-fluid px-4 py-4" style="max-width:1200px; margin:0 auto;">
-  <div class="row g-4">
+<div class="container-fluid px-4 py-5" style="max-width:860px; margin:0 auto;">
 
-    <!-- LEFT: Verdict + Stats -->
-    <div class="col-lg-3">
+  <!-- Verdict card -->
+  <div class="verdict-card mb-4 text-center">
+    {% if total == 0 %}
+      <i class="bi bi-shield-check display-4 d-block mb-2" style="color:var(--safe);"></i>
+      <h2 class="fw-bold" style="color:var(--safe);">¡Sin filtraciones detectadas!</h2>
+      <p class="text-muted-ce mb-0">El correo <strong>{{ email }}</strong> no aparece en ninguna brecha conocida.</p>
+    {% else %}
+      <i class="bi bi-shield-exclamation display-4 d-block mb-2" style="color:var(--danger);"></i>
+      <h2 class="fw-bold" style="color:var(--danger);">{{ total }} filtración{% if total > 1 %}es{% endif %} detectada{% if total > 1 %}s{% endif %}</h2>
+      <p class="text-muted-ce mb-0">El correo <strong>{{ email }}</strong> aparece en {{ total }} brecha{% if total > 1 %}s{% endif %} de datos.</p>
+    {% endif %}
+  </div>
 
-      <!-- Verdict -->
-      {% if result %}
-        {% if result.verdict == 'malicious' %}
-          <div class="verdict-card danger mb-3">
-            <i class="bi bi-exclamation-triangle-fill verdict-icon text-danger-ce"></i>
-            <div class="verdict-label text-danger-ce">MALICIOSO</div>
-            <div class="text-muted-ce" style="font-size:.8rem; word-break:break-all;">{{ result.value }}</div>
-            <div class="mt-2" style="font-size:.7rem; color:var(--text-faint);">
-              Analizado el {{ now }}
-            </div>
-          </div>
-        {% elif result.verdict == 'suspicious' %}
-          <div class="verdict-card warn mb-3">
-            <i class="bi bi-exclamation-circle-fill verdict-icon text-warn"></i>
-            <div class="verdict-label text-warn">SOSPECHOSO</div>
-            <div class="text-muted-ce" style="font-size:.8rem; word-break:break-all;">{{ result.value }}</div>
-            <div class="mt-2" style="font-size:.7rem; color:var(--text-faint);">
-              Analizado el {{ now }}
-            </div>
-          </div>
-        {% else %}
-          <div class="verdict-card safe mb-3">
-            <i class="bi bi-shield-check-fill verdict-icon text-safe"></i>
-            <div class="verdict-label text-safe">LIMPIO</div>
-            <div class="text-muted-ce" style="font-size:.8rem; word-break:break-all;">{{ result.value }}</div>
-            <div class="mt-2" style="font-size:.7rem; color:var(--text-faint);">
-              Analizado el {{ now }}
-            </div>
-          </div>
+  <!-- Stats row -->
+  <div class="row g-3 mb-4">
+    <div class="col-6 col-md-4">
+      <div class="card-ce p-3 text-center">
+        <div class="fw-bold" style="font-size:1.8rem; color:var(--accent);">{{ total }}</div>
+        <div class="text-muted-ce" style="font-size:.75rem;">Brechas</div>
+      </div>
+    </div>
+    <div class="col-6 col-md-4">
+      <div class="card-ce p-3 text-center">
+        <div class="fw-bold" style="font-size:1.8rem; color:var(--accent);">
+          {% set all_classes = [] %}
+          {% for b in breaches %}{% for cls in b.DataClasses %}{% if cls not in all_classes %}{% set _ = all_classes.append(cls) %}{% endif %}{% endfor %}{% endfor %}
+          {{ all_classes | length }}
+        </div>
+        <div class="text-muted-ce" style="font-size:.75rem;">Tipos de datos</div>
+      </div>
+    </div>
+    <div class="col-12 col-md-4">
+      <div class="card-ce p-3 text-center">
+        <div class="fw-bold" style="font-size:1.4rem; color:{% if total == 0 %}var(--safe){% else %}var(--danger){% endif %};">
+          {% if total == 0 %}LIMPIO{% else %}PWNED{% endif %}
+        </div>
+        <div class="text-muted-ce" style="font-size:.75rem;">Estado</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Breach list -->
+  {% if breaches %}
+  <h5 class="fw-bold text-primary-ce mb-3">Detalle de filtraciones</h5>
+  {% for b in breaches %}
+  <div class="card-ce p-4 mb-3">
+    <div class="d-flex align-items-start justify-content-between gap-3 mb-2">
+      <div>
+        <h6 class="fw-bold text-primary-ce mb-1">
+          <i class="bi bi-exclamation-triangle-fill me-2" style="color:var(--warn);"></i>{{ b.Name }}
+        </h6>
+        <small class="text-muted-ce">
+          Fecha: {{ b.BreachDate }}
+          {% if b.Domain %} &bull; Dominio: {{ b.Domain }}{% endif %}
+        </small>
+      </div>
+      <span class="badge-danger">FILTRADO</span>
+    </div>
+
+    <!-- Data classes -->
+    <div class="mb-2">
+      {% for cls in b.DataClasses %}
+      <span class="badge me-1 mb-1"
+            style="background:rgba(248,81,73,.15); color:var(--danger); border:1px solid var(--danger); font-size:.7rem;">
+        {{ cls }}
+      </span>
+      {% endfor %}
+    </div>
+
+    {% if b.Description %}
+    <p class="text-muted-ce mb-2" style="font-size:.8rem;">{{ b.Description | striptags }}</p>
+    {% endif %}
+
+    <!-- Action guide links -->
+    <div class="mt-2">
+      {% for cls in b.DataClasses %}
+        {% set cls_lower = cls | lower %}
+        {% if 'password' in cls_lower %}
+          <a href="/guides/passwords" class="btn btn-ce-primary btn-sm me-2 mb-1">
+            <i class="bi bi-key me-1"></i>Guía: Contraseñas
+          </a>
+        {% elif 'email' in cls_lower %}
+          <a href="/guides/email" class="btn btn-ce-primary btn-sm me-2 mb-1">
+            <i class="bi bi-envelope me-1"></i>Guía: Correo
+          </a>
+        {% elif 'credit card' in cls_lower or 'financial' in cls_lower %}
+          <a href="/guides/financial" class="btn btn-ce-primary btn-sm me-2 mb-1">
+            <i class="bi bi-credit-card me-1"></i>Guía: Financiero
+          </a>
+        {% elif 'phone' in cls_lower %}
+          <a href="/guides/phone" class="btn btn-ce-primary btn-sm me-2 mb-1">
+            <i class="bi bi-phone me-1"></i>Guía: Teléfono
+          </a>
         {% endif %}
-
-        <!-- Stats -->
-        <div class="card-ce p-3">
-          <p class="text-muted-ce fw-semibold mb-3" style="font-size:.8rem;">Resumen de detección</p>
-          <div class="stats-row">
-            <span class="text-danger-ce">Maliciosos</span>
-            <strong class="text-danger-ce">{{ result.malicious }}</strong>
-          </div>
-          <div class="stats-row">
-            <span class="text-warn">Sospechosos</span>
-            <strong class="text-warn">{{ result.suspicious }}</strong>
-          </div>
-          <div class="stats-row">
-            <span class="text-safe">Sin detección</span>
-            <strong class="text-safe">{{ result.harmless }}</strong>
-          </div>
-          <div class="stats-row">
-            <span class="text-muted-ce">Total motores</span>
-            <strong class="text-primary-ce">
-              {{ (result.malicious or 0) + (result.suspicious or 0) + (result.harmless or 0) + (result.undetected or 0) }}
-            </strong>
-          </div>
-        </div>
-
-      {% else %}
-        <!-- Error state -->
-        <div class="verdict-card warn mb-3">
-          <i class="bi bi-wifi-off verdict-icon text-warn"></i>
-          <div class="verdict-label text-warn">SIN DATOS</div>
-          <div class="text-muted-ce" style="font-size:.8rem;">{{ error or 'No se pudo obtener resultado' }}</div>
-        </div>
-      {% endif %}
-
+      {% endfor %}
     </div>
+  </div>
+  {% endfor %}
+  {% endif %}
 
-    <!-- RIGHT: Detail table -->
-    <div class="col-lg-9">
-      <div class="d-flex justify-content-between align-items-center mb-3">
-        <span class="fw-semibold" style="font-size:.95rem;">Detalle por motor de análisis</span>
-        <span class="text-muted-ce" style="font-size:.8rem;">
-          Recurso: <strong class="text-accent">{{ resource_type | upper }}</strong>
-        </span>
-      </div>
-
-      <div class="card-ce overflow-hidden">
-        <table class="table table-ce table-borderless mb-0">
-          <thead>
-            <tr>
-              <th>Motor</th>
-              <th>Resultado</th>
-              <th>Estado</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% if engines %}
-              {% for engine in engines %}
-              <tr>
-                <td>{{ engine.name }}</td>
-                <td>
-                  {% if engine.result %}
-                    <span class="{% if engine.category == 'malicious' %}text-danger-ce{% elif engine.category == 'suspicious' %}text-warn{% else %}text-muted-ce{% endif %}">
-                      {{ engine.result }}
-                    </span>
-                  {% else %}
-                    <span style="color:var(--text-faint);">—</span>
-                  {% endif %}
-                </td>
-                <td>
-                  {% if engine.category == 'malicious' %}
-                    <span class="badge-danger">Malicioso</span>
-                  {% elif engine.category == 'suspicious' %}
-                    <span class="badge-warn">Sospechoso</span>
-                  {% elif engine.category == 'harmless' or engine.category == 'undetected' %}
-                    <span class="badge-safe">Limpio</span>
-                  {% else %}
-                    <span style="color:var(--text-faint); font-size:.75rem;">Sin datos</span>
-                  {% endif %}
-                </td>
-              </tr>
-              {% endfor %}
-            {% else %}
-              <tr>
-                <td colspan="3" class="text-center py-5">
-                  <i class="bi bi-database-x fs-2 text-muted-ce d-block mb-2"></i>
-                  <span class="text-muted-ce">
-                    {% if error %}{{ error }}{% else %}No hay datos de motores disponibles{% endif %}
-                  </span>
-                </td>
-              </tr>
-            {% endif %}
-          </tbody>
-        </table>
-      </div>
-
-    </div>
+  <!-- Back button -->
+  <div class="text-center mt-4">
+    <a href="/" class="btn btn-ce-primary">
+      <i class="bi bi-arrow-left me-2"></i>Nueva consulta
+    </a>
   </div>
 </div>
 

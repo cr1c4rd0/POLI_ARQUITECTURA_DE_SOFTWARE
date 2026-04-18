@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}CiberEscudo — Dashboard{% endblock %}
+{% block title %}CiberEscudo — Panel{% endblock %}
 
 {% block body %}
 
@@ -9,96 +9,78 @@
     <i class="bi bi-shield-check text-accent"></i>CiberEscudo
   </a>
   <div class="d-flex align-items-center gap-3">
-    <a href="#" class="nav-link">Documentación</a>
-    <button class="btn-api-key">API Key</button>
-    <div class="avatar"></div>
+    <a href="/history/" class="nav-link"><i class="bi bi-clock-history me-1"></i>Historial</a>
+    <a href="/passwords/check" class="nav-link"><i class="bi bi-key me-1"></i>Contraseñas</a>
+    <a href="/auth/logout" class="nav-link text-muted-ce">
+      <i class="bi bi-box-arrow-right"></i>
+    </a>
   </div>
 </nav>
 
-<!-- Hero / Search -->
+<!-- Hero -->
 <div class="text-center py-5">
-  <h1 class="fw-bold mb-2" style="font-size:2rem;">Analiza cualquier amenaza</h1>
-  <p class="text-muted-ce mb-4">Ingresa una URL, dirección IP o dominio para verificar su seguridad</p>
+  <i class="bi bi-shield-check display-4 text-accent d-block mb-3"></i>
+  <h1 class="fw-bold mb-2" style="font-size:2rem;">¿Tu correo fue filtrado?</h1>
+  <p class="text-muted-ce mb-4" style="max-width:520px; margin:0 auto;">
+    Verifica si tu dirección de correo electrónico aparece en alguna filtración
+    de datos conocida usando la base de datos de <strong class="text-accent">Have I Been Pwned</strong>.
+  </p>
 
-  <!-- Tabs -->
-  <div class="d-flex justify-content-center mb-3">
-    <div class="tabs-ce">
-      <button class="tab-btn active" data-type="url"    onclick="setTab(this,'url')">URL</button>
-      <button class="tab-btn"        data-type="ip"     onclick="setTab(this,'ip')">IP</button>
-      <button class="tab-btn"        data-type="domain" onclick="setTab(this,'domain')">Dominio</button>
-    </div>
+  <!-- Error alert -->
+  {% if error %}
+  <div class="d-inline-flex align-items-center gap-2 px-4 py-2 mb-4"
+       style="background:var(--danger-bg); border:1px solid var(--danger); border-radius:8px; color:var(--danger); font-size:.875rem;">
+    <i class="bi bi-exclamation-circle-fill"></i> {{ error }}
   </div>
+  {% endif %}
 
-  <!-- Search box -->
-  <form class="d-flex justify-content-center" onsubmit="submitAnalysis(event)">
-    <div class="search-wrapper" style="width:100%; max-width:700px;">
-      <i class="bi bi-search text-muted-ce"></i>
-      <input type="text" id="searchInput" placeholder="https://ejemplo-sospechoso.com" autocomplete="off">
-      <input type="hidden" id="resourceType" value="url">
-      <button type="submit" class="btn btn-ce-analyze">Analizar</button>
+  <!-- Search form -->
+  <form method="POST" action="/monitoring/check" class="d-flex justify-content-center">
+    <div class="search-wrapper" style="width:100%; max-width:600px;">
+      <i class="bi bi-envelope text-muted-ce"></i>
+      <input type="email" name="email" placeholder="tucorreo@ejemplo.com"
+             value="{{ request.form.get('email','') }}" required autocomplete="off">
+      <button type="submit" class="btn btn-ce-analyze">
+        <i class="bi bi-search me-1"></i>Verificar
+      </button>
     </div>
   </form>
+  <p class="text-muted-ce mt-3" style="font-size:.75rem;">
+    <i class="bi bi-lock-fill me-1"></i>Tu correo es consultado de forma segura. No almacenamos información personal.
+  </p>
 </div>
 
-<!-- Recent analyses -->
-<div class="container-fluid px-4 pb-5" style="max-width:1200px; margin:0 auto;">
-  <p class="text-muted-ce fw-semibold mb-3" style="font-size:.85rem;">Análisis recientes</p>
+<!-- Info cards -->
+<div class="container-fluid px-4 pb-5" style="max-width:960px; margin:0 auto;">
   <div class="row g-3">
-
     <div class="col-md-4">
-      <div class="recent-card">
-        <div class="d-flex justify-content-between align-items-center mb-2">
-          <span class="badge-safe">LIMPIO</span>
-          <i class="bi bi-box-arrow-up-right text-muted-ce" style="font-size:.8rem;"></i>
-        </div>
-        <div class="resource-name">github.com/anthropics</div>
-        <div class="meta">0 / 72 motores detectaron amenazas</div>
+      <div class="card-ce p-4 text-center h-100">
+        <i class="bi bi-database-check fs-2 text-accent mb-3 d-block"></i>
+        <h6 class="fw-bold text-primary-ce mb-2">Base de datos global</h6>
+        <p class="text-muted-ce mb-0" style="font-size:.8rem;">
+          Más de 12 mil millones de cuentas comprometidas indexadas por HIBP.
+        </p>
       </div>
     </div>
-
     <div class="col-md-4">
-      <div class="recent-card">
-        <div class="d-flex justify-content-between align-items-center mb-2">
-          <span class="badge-danger">MALICIOSO</span>
-          <i class="bi bi-box-arrow-up-right text-muted-ce" style="font-size:.8rem;"></i>
-        </div>
-        <div class="resource-name">192.168.1.105</div>
-        <div class="meta">15 / 72 motores detectaron amenazas</div>
+      <div class="card-ce p-4 text-center h-100">
+        <i class="bi bi-lightning-charge-fill fs-2 text-accent mb-3 d-block"></i>
+        <h6 class="fw-bold text-primary-ce mb-2">Respuesta inmediata</h6>
+        <p class="text-muted-ce mb-0" style="font-size:.8rem;">
+          Consulta en tiempo real y guías de acción personalizadas en español.
+        </p>
       </div>
     </div>
-
     <div class="col-md-4">
-      <div class="recent-card">
-        <div class="d-flex justify-content-between align-items-center mb-2">
-          <span class="badge-warn">SOSPECHOSO</span>
-          <i class="bi bi-box-arrow-up-right text-muted-ce" style="font-size:.8rem;"></i>
-        </div>
-        <div class="resource-name">phishing-alert.net</div>
-        <div class="meta">4 / 72 motores detectaron amenazas</div>
+      <div class="card-ce p-4 text-center h-100">
+        <i class="bi bi-shield-lock-fill fs-2 text-accent mb-3 d-block"></i>
+        <h6 class="fw-bold text-primary-ce mb-2">Privacidad garantizada</h6>
+        <p class="text-muted-ce mb-0" style="font-size:.8rem;">
+          Verificación de contraseñas con k-Anonymity. Tu información nunca sale del servidor.
+        </p>
       </div>
     </div>
-
   </div>
 </div>
 
-{% endblock %}
-
-{% block scripts %}
-<script>
-function setTab(el, type) {
-  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-  el.classList.add('active');
-  document.getElementById('resourceType').value = type;
-  const placeholders = { url: 'https://ejemplo-sospechoso.com', ip: '192.168.1.1', domain: 'dominio-sospechoso.com' };
-  document.getElementById('searchInput').placeholder = placeholders[type];
-}
-
-function submitAnalysis(e) {
-  e.preventDefault();
-  const value = document.getElementById('searchInput').value.trim();
-  const type  = document.getElementById('resourceType').value;
-  if (!value) return;
-  window.location.href = `/results?type=${encodeURIComponent(type)}&value=${encodeURIComponent(value)}`;
-}
-</script>
 {% endblock %}

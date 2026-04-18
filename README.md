@@ -475,3 +475,125 @@ Los materiales de lectura se encuentran en la carpeta `DOCUMENTACIÓN/`:
 - `ESCENARIO_7/` — Metodologías de arquitectura
 - `ESCENARIO_8/` — Documentación de arquitectura
 - `TRABAJO_GRUPAL/` — Materiales para el trabajo colaborativo
+
+---
+
+## CiberEscudo — Guía de instalación y ejecución local
+
+CiberEscudo es el proyecto práctico del curso. Es una aplicación web desarrollada en **Flask (Python)** que permite verificar si un correo electrónico ha sido filtrado en brechas de datos conocidas, comprobar contraseñas comprometidas con k-Anonymity y consultar guías de acción en español.
+
+### Requisitos previos
+
+- **Python 3.10 o superior** — [python.org/downloads](https://www.python.org/downloads/)
+- **Git** — [git-scm.com](https://git-scm.com/)
+- Terminal (PowerShell, CMD o bash)
+
+---
+
+### 1. Clonar el repositorio
+
+```bash
+git clone https://github.com/cr1c4rd0/POLI_ARQUITECTURA_DE_SOFTWARE.git
+cd POLI_ARQUITECTURA_DE_SOFTWARE
+```
+
+---
+
+### 2. Crear el entorno virtual
+
+```bash
+# Windows
+python -m venv .venv
+.venv\Scripts\activate
+
+# macOS / Linux
+python3 -m venv .venv
+source .venv/bin/activate
+```
+
+> Sabrás que el entorno está activo cuando el prompt muestre `(.venv)` al inicio.
+
+---
+
+### 3. Instalar Flask y dependencias
+
+```bash
+pip install -r requirements.txt
+```
+
+Esto instala:
+
+| Paquete | Versión | Uso |
+|---|---|---|
+| `flask` | 3.1.3 | Framework web |
+| `requests` | 2.32.3 | Consultas HTTP a HIBP |
+| `python-dotenv` | 1.0.1 | Variables de entorno |
+
+---
+
+### 4. Ejecutar el proyecto
+
+```bash
+python app.py
+```
+
+Deberías ver en consola:
+
+```
+ * Running on http://127.0.0.1:5000
+ * Debug mode: on
+```
+
+Abre tu navegador y ve a: **http://127.0.0.1:5000**
+
+---
+
+### 5. Iniciar sesión
+
+La aplicación usa un usuario fijo para el entorno de desarrollo:
+
+| Campo | Valor |
+|---|---|
+| **Usuario** | `admin` |
+| **Contraseña** | `ciberescudo123` |
+
+Ingresa las credenciales en la pantalla de login y haz clic en **Iniciar Sesión**. Serás redirigido automáticamente al panel principal.
+
+---
+
+### Estructura del proyecto
+
+```
+POLI_ARQUITECTURA_DE_SOFTWARE/
+├── app.py                  # Punto de entrada principal
+├── config.py               # Configuración y registro de servicios
+├── requirements.txt        # Dependencias
+├── routes/                 # Blueprints (servicios SOA)
+│   ├── auth.py             # Autenticación
+│   ├── monitoring.py       # Consulta de brechas por correo
+│   ├── passwords.py        # Verificación de contraseñas (k-Anonymity)
+│   ├── guides.py           # Guías de acción
+│   └── history.py          # Historial de alertas
+├── services/               # Lógica de negocio
+│   ├── hibp_service.py     # Servicio HIBP (brechas de correo)
+│   ├── password_checker.py # Verificación con k-Anonymity
+│   ├── action_guides.py    # Guías en español
+│   └── history_service.py  # Persistencia SQLite
+├── templates/              # Vistas HTML (Jinja2 + Bootstrap 5)
+└── static/css/             # Estilos personalizados
+```
+
+---
+
+### Endpoints disponibles
+
+| Ruta | Método | Descripción |
+|---|---|---|
+| `/` | GET | Panel principal |
+| `/auth/login` | GET / POST | Iniciar sesión |
+| `/auth/logout` | GET | Cerrar sesión |
+| `/monitoring/check` | POST | Verificar correo |
+| `/passwords/check` | GET / POST | Verificar contraseña |
+| `/history/` | GET | Historial de alertas |
+| `/guides/<tipo>` | GET | Guía de acción |
+| `/api/v1/health` | GET | Estado global del sistema |
