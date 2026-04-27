@@ -1,5 +1,60 @@
+# === Entorno y secretos ===
 .env
+.env.*
+!.env.example
+
+# === Base de datos ===
 *.db
+*.sqlite
+*.sqlite3
+
+# === Python ===
 __pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.egg
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# === Entorno virtual ===
 .venv/
+venv/
+env/
+ENV/
+
+# === Testing ===
 .pytest_cache/
+.coverage
+htmlcov/
+coverage.xml
+*.cover
+
+# === Flask ===
+instance/
+flask_session/
+
+# === Logs y temporales ===
+*.log
+*.tmp
+*.bak
+*.swp
+*.swo
+*~
+
+# === IDEs y editores ===
+.idea/
+.vscode/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+.history/
+
+# === Sistema operativo ===
+.DS_Store
+Thumbs.db
+desktop.ini
+ehthumbs.db
