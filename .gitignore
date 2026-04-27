@@ -1,6 +1,9 @@
 # === Scripts auxiliares ===
 update_docx.py
 
+# === Carpetas no relacionadas al proyecto ===
+DOCUMENTATION/
+
 # === Entorno y secretos ===
 .env
 .env.*
