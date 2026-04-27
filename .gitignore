@@ -1,3 +1,6 @@
+# === Scripts auxiliares ===
+update_docx.py
+
 # === Entorno y secretos ===
 .env
 .env.*
